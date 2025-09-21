@@ -1,0 +1,51 @@
+---
+name: Auto Merge Feature Branches to Develop
+
+"on":
+  push:
+    branches:
+      - 'feat/**'
+      - 'feat/*'
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email \
+            "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create develop branch if it doesn't exist
+        run: |
+          if ! git rev-parse --verify origin/develop >/dev/null 2>&1; then
+            echo "Creating develop branch from main"
+            git checkout -b develop origin/main
+            git push origin develop
+          fi
+
+      - name: Merge feature branch to develop
+        run: |
+          FEATURE_BRANCH=${GITHUB_REF#refs/heads/}
+          echo "Feature branch: $FEATURE_BRANCH"
+
+          # Checkout develop branch
+          git checkout develop
+          git pull origin develop
+
+          # Merge the feature branch
+          git merge origin/$FEATURE_BRANCH --no-ff \
+            -m "Auto-merge $FEATURE_BRANCH to develop"
+
+          # Push the changes
+          git push origin develop
+
+          echo "Successfully merged $FEATURE_BRANCH to develop"
