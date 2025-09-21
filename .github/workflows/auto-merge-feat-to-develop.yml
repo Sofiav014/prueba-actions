@@ -11,6 +11,7 @@ name: Auto Merge Feature Branches to Develop
 
 jobs:
   auto-merge:
+    if: contains(github.event.head_commit.message, '(done)')
     runs-on: ubuntu-latest
 
     steps:
