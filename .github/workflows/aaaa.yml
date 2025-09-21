@@ -19,9 +19,7 @@ concurrency:
 jobs:
   merge-feature:
     name: Integrar ${{ github.ref_name }} en develop
-    if: |
-      startsWith(github.ref, 'refs/heads/feat') && 
-      contains(github.event.head_commit.message, '(done)')
+    if: contains(github.event.head_commit.message, '(done)')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
