@@ -1,0 +1,45 @@
+name: Feature → Develop auto-merge
+
+"on":
+  push:
+    branches:
+      - 'feat/**'
+      - 'feat/*'
+      - 'feat(*)/**'
+      - 'feat(*)'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: feature-into-develop-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  merge-feature:
+    name: Integrar ${{ github.ref_name }} en develop
+    if: |
+      startsWith(github.ref, 'refs/heads/feat') && 
+      contains(github.event.head_commit.message, '(done)')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Mezclar develop → ${{ github.ref_name }}
+        uses: tukasz/direct-merge-action@master
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          source-branch: develop
+          target-branch: ${{ github.ref_name }}
+
+      - name: Mezclar ${{ github.ref_name }} → develop
+        if: ${{ success() }}
+        uses: tukasz/direct-merge-action@master
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          source-branch: ${{ github.ref_name }}
+          target-branch: develop
