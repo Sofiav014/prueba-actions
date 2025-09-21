@@ -6,6 +6,8 @@ name: Auto Merge Feature Branches to Develop
     branches:
       - 'feat/**'
       - 'feat/*'
+      - 'feat(*)/**'
+      - 'feat(*)'
 
 jobs:
   auto-merge:
