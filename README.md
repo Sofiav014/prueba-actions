@@ -1,2 +1,2 @@
 # prueba-actions
-Preuba de Github Actions
+Prueba de Github Actions
